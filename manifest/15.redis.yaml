@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest # 최신 Redis 이미지 사용
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "500Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /data
+      volumes:
+        - name: redis-storage
+          emptyDir: {} # Pod 종료 시 데이터 삭제됨 (영구 저장하려면 PVC 사용)
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: hello
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  clusterIP: None # Headless Service (Pod 간 직접 연결 가능)
