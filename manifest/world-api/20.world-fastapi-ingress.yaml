@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: world-fastapi-ingress
+  namespace: hello
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: world-fastapi.local # 로컬 도메인으로 접근
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hello-fastapi-service # FastAPI 서비스와 연결
+                port:
+                  number: 80
